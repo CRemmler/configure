@@ -1,0 +1,171 @@
+// style for interface from krisrak
+
+@media screen and (max-width: 500px) {
+	#show-drag-small {
+		display: none;
+	}
+        #show-drag-big {
+		display: inline;
+        }
+          .palette-case {
+                width: 328px;
+	        border: 1px solid red;
+
+          }
+
+
+}
+
+	body {
+                margin:0px;
+                width:100%;
+                height:100%;
+                overflow:hidden;
+        	/* prevent text selection on ui */
+        	user-select: none;
+        	-webkit-user-select: none;
+        	-moz-user-select: none;
+        	-ms-user-select: none;
+        	/* prevent scrolling in windows phone */
+        	-ms-touch-action: none;
+          }
+
+	#aboutContent {
+  	//	float: left;
+  	//	width: 70%;
+		//margin-top: 5px;
+	}
+	#closeAbout {
+	//	margin-left: 20%;
+	}
+
+
+          #content {
+	          overflow:hidden;
+//                  background-color:#ddd;
+background-color: white;
+          }
+          #canvas{
+                cursor:crosshair ;
+        	background-color:#fff;
+
+          }
+	  #aboutButtonContent {
+                background-color:white;
+          	overflow:hidden;
+		padding-left: 10px;
+		padding-right: 10px;
+		font-weight: normal;	
+	  }
+	  #newButtonContent {
+		background-color:white;
+                overflow:hidden;
+                padding-left: 10px;
+                padding-right: 10px;
+                font-weight: normal;
+
+	  }
+
+          .palette-case {
+border: 1px solid green;
+                width: 568; //width:328px;
+                margin:auto;
+                text-align: center;
+          }
+
+
+          .palette-box {
+                float:left;
+                padding:1px 1px 1px 4px;
+          }
+
+	  .palette {
+		border-radius: 5px;
+          }
+	  .palette-item {
+		  border-radius: 5px;
+padding: 3px 1px 0px 1px;
+border: 1px solid red;
+	  }
+
+
+          .palette-text {
+                color: white;
+                margin-top: 8px;
+                font-size: 14px;
+                text-shadow: 0px 0px black;
+          }
+
+
+          #scale{
+                background-color: #d4aad4;
+                border:2px solid #fff;
+          }
+          #rotate{
+                background-color: #b4aad4;
+                border:2px solid #fff;
+          }
+
+//          #bigDrag{
+ //               background-color: #d4aaaa;// #994c00; //#999900;
+//#c2c291;//    #c2c20a ; //#DF7401;
+  //              border:2px dashed #fff;
+ //         }
+
+      //                          <div class="palette-box" id='show-drag-small'>
+      //                                  <button class="drag" class='palette-item'>                                       
+      //                                           <img class='img-small' src='images/drag0.png'>
+      //                                  </button>
+      //                          </div>
+
+
+        #show-drag-small {
+		//display: none;
+        }
+        #show-drag-big {
+		display: none;
+         //       visiblity: visible;
+        }
+
+
+
+	  .img-big {
+		width:200px;
+		height:50px;
+	  }
+	  .img-small {
+		width: 50px;
+		height: 50px;
+	  }
+
+          #drag-one {
+                background-color: #d4aaaa; //#994c00; //#999900;
+                border:2px solid #777;
+          }
+          #drag-two {
+                background-color: #d4aaaa; //#994c00; //#999900;
+                border:2px solid #777;
+		width:200px;
+          }
+
+          #draw{
+                background-color: #d4bfaa;
+                border:2px solid #fff;
+          }
+          #toggle{
+                border:2px solid #fff;
+		background-color:  #d4d4aa;
+          }
+          #glue{
+                border:2px solid #fff;
+                background-color: #aad4aa;
+          }
+          #cut{
+                border:2px solid #fff;
+                background-color: #aad4c9;
+          }
+          #erase{
+                border:2px solid #fff;
+                background-color: #aac9d4;
+          }
+

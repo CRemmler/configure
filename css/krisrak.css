@@ -1,0 +1,183 @@
+// style for interface from krisrak
+
+
+	body {
+                margin:0px;
+                width:100%;
+                height:100%;
+                overflow:hidden;
+        	/* prevent text selection on ui */
+        	user-select: none;
+        	-webkit-user-select: none;
+        	-moz-user-select: none;
+        	-ms-user-select: none;
+        	/* prevent scrolling in windows phone */
+        	-ms-touch-action: none;
+          }
+
+	#aboutContent {
+  	//	float: left;
+  	//	width: 70%;
+		//margin-top: 5px;
+	}
+	#closeAbout {
+	//	margin-left: 20%;
+	}
+
+
+          #content {
+	          overflow:hidden;
+//                  background-color:#ddd;
+background-color: white;
+          }
+          #canvas{
+              //  cursor:crosshair ;
+        	background-color:#fff;
+
+          }
+	  #aboutButtonContent {
+                background-color:white;
+          	overflow:hidden;
+		padding-left: 10px;
+		padding-right: 10px;
+		font-weight: normal;	
+	  }
+	  #newButtonContent {
+		background-color:white;
+                overflow:hidden;
+                padding-left: 10px;
+                padding-right: 10px;
+                font-weight: normal;
+
+	  }
+
+          .palette-case {
+                margin:auto;
+                text-align:center;
+                width: 522px; //width:328px;
+          }
+
+
+          .palette-box {
+                float:left;
+                padding:1px 1px 1px 4px;
+          }
+
+	  .palette {
+		border-radius: 5px;
+          }
+	  .palette-item {
+		  border-radius: 5px;
+padding: 3px 1px 0px 1px;
+	  }
+
+
+          .palette-text {
+                color: white;
+                margin-top: 8px;
+                font-size: 14px;
+                text-shadow: 0px 0px black;
+          }
+
+
+          #scale{
+                background-color: #d4aad4;
+                border:2px solid #fff;
+          }
+          #rotate-one{
+                background-color: #b4aad4;
+                border:2px solid #fff;
+          }
+          #rotate-two{
+                background-color: #b4aad4;
+                border:2px solid #fff;
+          }
+
+
+        #show-two-d {
+		display: none;
+        }
+        #show-two-r {
+                display: none;
+        }
+        #show-two-e {
+                display: none;
+        }
+
+
+
+
+	  .img-big {
+		width:200px;
+		height:50px;
+	  }
+	  .img-small {
+		width: 50px;
+		height: 50px;
+	  }
+
+          #drag-one {
+                background-color: #d4aaaa; //#994c00; //#999900;
+                border:2px solid #777;
+          }
+          #drag-two {
+                background-color: #d4aaaa; //#994c00; //#999900;
+                border:2px solid #777;
+	//	width:190px;
+          }
+
+          #draw{
+                background-color: #d4bfaa;
+                border:2px solid #fff;
+          }
+          #toggle{
+                border:2px solid #fff;
+		background-color:  #d4d4aa;
+          }
+          #glue{
+                border:2px solid #fff;
+                background-color: #aad4aa;
+          }
+          #cut{
+                border:2px solid #fff;
+                background-color: #aad4c9;
+          }
+          #erase-one{
+                border:2px solid #fff;
+                background-color: #aac9d4;
+          }
+          #erase-two{
+                border:2px solid #fff;
+                background-color: #aac9d4;
+          }
+
+
+@media only screen and (max-width: 545px) {
+
+        #show-one-d {
+                display: none;
+        }
+        #show-two-d {
+                display: inline;
+        }
+        #show-one-r { 
+                display: none;
+        }
+        #show-two-r {
+                display: inline;
+        }
+        #show-one-e {
+                display: none;
+        }       
+        #show-two-e {
+                display: inline;
+        }
+
+          
+          .palette-case {
+               width: 260px; // width: 328px;
+          }
+
+}
+
+
