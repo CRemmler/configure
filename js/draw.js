@@ -11,16 +11,11 @@ var startX, startY;
 
 
 function drawCurve(object,x1,y1,hx,hy,x2,y2) {
-        object.x1 = x1;
-        object.y1 = y1;
-        object.hx = hx;
-        object.hy = hy;
-        object.x2 = x2;
-        object.y2 = y2;
 
         /*grab (x,y) coordinates of the control points*/
         var x=new Array();
         var y=new Array();
+
         x[0] = x1; y[0] = y1;
         x[1] = hx; y[1] = hy;
         x[2] = x2; y[2] = y2;
@@ -28,24 +23,20 @@ function drawCurve(object,x1,y1,hx,hy,x2,y2) {
         /*computes control points p1 and p2 for x and y direction*/
         var px = computeControlPoints(x);
         var py = computeControlPoints(y);
-
-        object.helper1x = px.p1[0];
-        object.helper1y = py.p1[0];
-        object.helper2x = px.p2[0];
-        object.helper2y = py.p2[0];
-        object.helper3x = px.p1[1];
-        object.helper3y = py.p1[1];
-        object.helper4x = px.p2[1];
-        object.helper4y = py.p2[1];
-
-	object.graphics.clear();
-        object.graphics.setStrokeStyle(12).beginStroke('#91b6c2');
-
-        object.graphics.moveTo(x1,y1);
-        object.graphics.bezierCurveTo(px.p1[0],py.p1[0],px.p2[0],py.p2[0],hx,hy);
-        object.graphics.bezierCurveTo(px.p1[1],py.p1[1],px.p2[1],py.p2[1],x2,y2);
-        object.graphics.endStroke();
-        stage.update();
+        object.segments[0].handleOut.x = px.p1[0] - x1; //x1 -  px.p1[0];
+        object.segments[0].handleOut.y = py.p1[0] - y1; //y1 - py.p1[0];
+        object.segments[1].handleIn.x = px.p2[0] - hx; //hx - px.p2[0];
+        object.segments[1].handleIn.y = py.p2[0] - hy; //hy - py.p2[0];
+        object.segments[1].handleOut.x = px.p1[1] - hx; //hx - px.p1[1];
+        object.segments[1].handleOut.y = py.p1[1] - hy; //hy - py.p1[1];
+        object.segments[2].handleIn.x = px.p2[1] - x2; //x2 - px.p2[1];
+        object.segments[2].handleIn.y = py.p2[1] - y2; //y2 - py.p2[1];
+        object.segments[0].point.x = x1;
+        object.segments[0].point.y = y1;
+        object.segments[1].point.x = hx;
+        object.segments[1].point.y = hy;
+        object.segments[2].point.x = x2;
+        object.segments[2].point.y = y2;
 }
 
 function createCurve(x1,y1,hx,hy,x2,y2) {
@@ -54,83 +45,110 @@ function createCurve(x1,y1,hx,hy,x2,y2) {
         var x=new Array();
         var y=new Array();
 
-	x[0] = x1; y[0] = y1;
-	x[1] = hx; y[1] = hy;
-	x[2] = x2; y[2] = y2;
+        x[0] = x1; y[0] = y1;
+        x[1] = hx; y[1] = hy;
+        x[2] = x2; y[2] = y2;
 
         /*computes control points p1 and p2 for x and y direction*/
         var px = computeControlPoints(x);
         var py = computeControlPoints(y);
 
-        var smoothCurve = new createjs.Shape();
-        smoothCurve.graphics.setStrokeStyle(12).beginStroke('#91b6c2');
-        smoothCurve.graphics.moveTo(x[0], y[0]);
-        smoothCurve.graphics.bezierCurveTo(px.p1[0],py.p1[0],px.p2[0],py.p2[0],x[1],y[1]);
-        smoothCurve.graphics.bezierCurveTo(px.p1[1],py.p1[1],px.p2[1],py.p2[1],x[2],y[2]);
-        smoothCurve.graphics.endStroke();
-	smoothCurve.name = 'c' + edgeId;
+        var curve = new Path();
+        curve.strokeWidth = 15;
+        curve.strokeColor = '#91b6c2';
+        curve.add(new Point(x1, y1), new Point(hx, hy), new Point(x2, y2));
 
-	smoothCurve.x1 = x1;
-	smoothCurve.y1 = y1;
-	smoothCurve.hx = hx;
-	smoothCurve.hy = hy;
-	smoothCurve.x2 = x2;
-	smoothCurve.y2 = y2;
-	smoothCurve.helper1x = px.p1[0];
-	smoothCurve.helper1y = py.p1[0];
-	smoothCurve.helper2x = px.p2[0];
-	smoothCurve.helper2y = py.p2[0];
-        smoothCurve.helper3x = px.p1[1];
-        smoothCurve.helper3y = py.p1[1];
-        smoothCurve.helper4x = px.p2[1];
-        smoothCurve.helper4y = py.p2[1];
+//	curve.moveTo(new Point(x1,y1);
+//	curve.cubicCurveTo(new Point(px.p1[0],py.p1[0]), new Point(px.p2[0], py.p2[0]), new Point(hx, hy);
+//	curve.cubicCurveTo(new Point(px.p1[1],py.p1[1]), new Point(px.p2[1], py.p2[1]), new Point(x2, y2);
+        curve.closed = false;
+        curve.name = 'c' + edgeId;
+        curve.groupId = 'g' + groupId;
+	curve.helperX = hx;
+	curve.helperY = hy;
+//	curve.smooth();
+        group.addChild(curve);
 
-	smoothCurve.groupId = "g" + groupId;
+	curve.segments[0].handleOut.x = px.p1[0] - x1; //x1 -  px.p1[0];
+	curve.segments[0].handleOut.y = py.p1[0] - y1; //y1 - py.p1[0];
+        curve.segments[1].handleIn.x = px.p2[0] - hx; //hx - px.p2[0];
+        curve.segments[1].handleIn.y = py.p2[0] - hy; //hy - py.p2[0];
+        curve.segments[1].handleOut.x = px.p1[1] - hx; //hx - px.p1[1];
+        curve.segments[1].handleOut.y = py.p1[1] - hy; //hy - py.p1[1];
+        curve.segments[2].handleIn.x = px.p2[1] - x2; //x2 - px.p2[1];
+        curve.segments[2].handleIn.y = py.p2[1] - y2; //y2 - py.p2[1];
 
-        smoothCurve.addEventListener("click", function(event) {
+        curve.onClick = function(event) {
                 switch (mode) {
                         case "toggle":
-                                toggleCurve(event.currentTarget.name);
+                                toggleCurve(this.name);
+                                drawAllIntersections();
+
                                 break;
                         case "erase":
-                                erase(event.currentTarget.name);
-                                break;
+                               erase(this.name);
+                                drawAllIntersections();
+
+			       break;
                         case "cut":
-// 0 is lowest way to cut
-                                cutEdge(event.currentTarget.name, event.stageX, event.stageY, 5, 5);
-                                break;
-                        case "draw":
-                                cutEdge(event.currentTarget.name, event.stageX, event.stageY, 0, 0);
-                                glue(event.stageX, event.stageY);
+                                cutEdge(this.name, event.point.x, event.point.y, 5);
+                                drawAllIntersections();
 
-console.log('draw a point on this curve');
-                                break;
+				 break;
+        //                case "draw":
+        //                        cutEdge(this.name,event.point.x,event.point.y,0,0);
+        //                        glue(event.point.x, event.point.y);
+        //                        break;
                 }
-	});
-//console.log('adding curve groupId ' + smoothCurve.groupId);
-        addToGroupIdList(smoothCurve.groupId, smoothCurve.name);
+	}
+        addToGroupIdList(curve.groupId, curve.name);
 
-        smoothCurve.addEventListener("mousedown", function(event) {
-                startX = event.stageX;
-                startY = event.stageY;
-        })
+        curve.onMouseDown = function (evt) {
+                if (mode == "draw") {
+                        cutEdge(this.name, evt.point.x, evt.point.y, 0);
+                        glue(evt.point.x, evt.point.y);
 
-        smoothCurve.on("pressmove", function(evt){
-                removeIntersections();
-                dragCurve(evt); //dragging.js
-                edgeIntersection(evt);
+                        thisX = evt.point.x;
+                        thisY = evt.point.y
+                        createLine(thisX, thisY, thisX + 20, thisY + 20);
+                        dragThisLine = 'l' + (edgeId - 1);
+                        glue(thisX,thisY);
 
+                        initialPoint = new Point(thisX, thisY);
 
-        });
+                        dragPoint(group.children['n' + (nodeId - 1)], thisX, thisY);
+                        drawingPoint = group.children['n' + (nodeId - 1)];
 
-        smoothCurve.on("mousedown", function(evt) {
-		removeIntersections();
-        });
+                        transferPermtoTemp(dragThisLine);
 
+                } else {
 
+	                transferPermtoTemp(this.name);
+	                startX = evt.point.x;
+	                startY = evt.point.y;
+		}
+	}
 
-        stage.addChild(smoothCurve);
-        stage.update();
+        curve.onMouseUp = function (evt) {
+                if (mode == "draw") {
+//                        glue(evt.point.x, evt.point.y);
+//                        updatePoint(drawingPoint, evt.point.x, evt.point.y);
+//                        toggleLine(dragThisLine);
+                } 
+	        transferTempToPerm();
+        }
+
+        curve.onMouseDrag = function (evt) {
+                if (mode == "draw") {
+                               removeTempIntersections();
+                                updatePoint(drawingPoint,evt.point.x, evt.point.y);
+                                pointIntersection(evt,drawingPoint.name);
+                } else {
+        	        removeTempIntersections();
+               		dragCurve(group.children[this.name],evt.point.x,evt.point.y);
+                	edgeIntersection(evt, this.name);
+		}
+	}
 
         createPoint(x1,y1);
         createHelper(hx,hy);
@@ -202,55 +220,57 @@ function computeControlPoints(K)
 }
 
 function drawHelper(object,x,y) {
-
-	object.graphics.clear();
-        object.graphics.setStrokeStyle(3).beginStroke("#528494").beginFill('#cedee4').drawRect(x - 6, y - 6, 12, 12);
-	object.x1 = x;
-	object.y1 = y;
-        stage.update();
-
+        var offsetX = object.segments[0].point.x - x;
+        var offsetY = object.segments[0].point.y - y;
+//console.log('drawHelper ' + object.name + ' ' + x + ',' + y); 
+        object.segments[0].point.x = object.segments[0].point.x - offsetX;
+        object.segments[0].point.y = object.segments[0].point.y - offsetY;
+        object.segments[1].point.x = object.segments[1].point.x - offsetX;
+        object.segments[1].point.y = object.segments[1].point.y - offsetY;
+        object.segments[2].point.x = object.segments[2].point.x - offsetX;
+        object.segments[2].point.y = object.segments[2].point.y - offsetY;
+        object.segments[3].point.x = object.segments[3].point.x - offsetX;
+        object.segments[3].point.y = object.segments[3].point.y - offsetY;
 }
 
 function drawLine(object,x1,y1,x2,y2) {
-//console.log('draw ' + object.id() + ' at ' + x1 + ', ' + y1 + ', ' + x2 + ', ' + y1);
-	object.graphics.clear();
-        object.graphics.setStrokeStyle(12).beginStroke('#91b6c2');
-        object.graphics.moveTo(x1,y1);
-        object.graphics.lineTo(x2,y2);
-        object.graphics.endStroke();
-	object.x1 = x1;
-	object.y1 = y1;
-	object.x2 = x2;
-	object.y2 = y2;
-	stage.update();
+//console.log('drawLine');
+	//console.log('drawLine ' + object.name + ' from ' + x1 + ',' + y1 + ',' + x2 + ',' + y2);
+        object.segments[0].point.x = x1;
+        object.segments[0].point.y = y1;
+        object.segments[1].point.x = x2;
+        object.segments[1].point.y = y2;
 }
 
-
-
 function drawPoint(object,x,y) {
+        var offsetX = object.segments[0].point.x - x;
+        var offsetY = object.segments[0].point.y - y;
+        object.segments[0].point.x = object.segments[0].point.x - offsetX;
+        object.segments[0].point.y = object.segments[0].point.y - offsetY;
+        object.segments[1].point.x = object.segments[1].point.x - offsetX;
+        object.segments[1].point.y = object.segments[1].point.y - offsetY;
+        object.segments[2].point.x = object.segments[2].point.x - offsetX;
+        object.segments[2].point.y = object.segments[2].point.y - offsetY;
+        object.segments[3].point.x = object.segments[3].point.x - offsetX;
+        object.segments[3].point.y = object.segments[3].point.y - offsetY;
 
 
-	object.graphics.clear();
-        object.graphics.setStrokeStyle(3).beginStroke("#528494").beginFill("#cedee4").drawCircle(x, y, 8);
-	object.x1 = x;
-	object.y1 = y;
-	object.oldX = x;
-	object.oldY = y;
-	stage.update();
-	
 }
 
 
 
 function drawIntersectionPoint(x,y,color,fill) {
-        var x1,y1,x2,y2;
-        var circle = new createjs.Shape();
-        circle.graphics.setStrokeStyle(3).beginStroke(color).beginFill(fill).drawCircle(x, y, 8);
-        circle.type = 'point';
-        circle.name = 'intersection' + intersectionList.length;
-	intersectionList.push(circle.name);
-	stage.addChild(circle);
-	stage.update();
+
+
+
+//        var x1,y1,x2,y2;
+//        var circle = new createjs.Shape();
+//        circle.graphics.setStrokeStyle(3).beginStroke(color).beginFill(fill).drawCircle(x, y, 8);
+//        circle.type = 'point';
+//        circle.name = 'intersection' + intersectionList.length;
+//	intersectionList.push(circle.name);
+//	stage.addChild(circle);
+//	stage.update();
 }
 
 function drawIntersectionHelper(x,y,color,fill) {
@@ -269,6 +289,7 @@ function drawIntersectionLine(edge) {
         var line = new createjs.Shape();
 
 	var thisEdge = stage.getChildByName(edge.id());
+
         line.graphics.setStrokeStyle(12).beginStroke("orange");
         line.graphics.moveTo(thisEdge.x1, thisEdge.y1);
         line.graphics.lineTo(thisEdge.x2, thisEdge.y2);
@@ -298,42 +319,73 @@ function drawIntersectionCurve(edge) {
 	stage.update();
 }
 
+        function completeHitTest(point, nodes, edges) {
+                var thisObject;
+                var objectsFound = [];
+                var foundAllObjects = false;
+                while (foundAllObjects == false) {
+                        thisObject = group.hitTest(point);
+                        if (thisObject == false) {
+                                foundAllObjects = true;
+                        } else {
+                                //is thisObject in objectsFound?
+                                for (j=0;j<objectsFound.length;j++) {
+                                        if (thisObject.item.name == objectsFound[j]) {
+                                                foundAllObjects = true;
+                                                j = objectsFound.length;
+                                        }
+                                }
+                                if (foundAllObjects == false) {
+					objectsFound.push(thisObject.item.name);
+                                        thisObject.item.sendToBack();
+                                }
+                        }
+                }
+		var requestedObjectsFound = [];
+		for (s=0;s<objectsFound.length;s++) {
+			if (objectsFound[s][0] == "n") {
+				if (nodes) { requestedObjectsFound.push(objectsFound[s]); }
+			}
+			if ((objectsFound[s][0] == "l") || (objectsFound[s][0] == "c")) {
+				if (edges) { requestedObjectsFound.push(objectsFound[s]); }
+			}
+		}
+                return requestedObjectsFound;
+        }
+
 
 function createPoint(x,y) {
-
-	var x1,y1,x2,y2;
-	var circle = new createjs.Shape();
-        circle.graphics.setStrokeStyle(3).beginStroke("#528494").beginFill("#cedee4").drawCircle(x, y, 8);
-
-	circle.type = 'point';
-	circle.groupId = 'g' + groupId;
+	var circle = new Path.Circle(new Point(x, y), 8);
+	circle.fillColor = "#cedee4";
+	circle.strokeWidth = 3;
+	circle.strokeColor = "#528494";
 	circle.name = 'n' + nodeId;
-	circle.x1 = x;
-	circle.y1 = y;
-	circle.oldX = x;
-	circle.oldY = y;
-
+	circle.groupId = 'g' + groupId;
+	circle.smooth();
+	group.addChild(circle);
         addToGroupIdList(circle.groupId, circle.name);
+	paper.view.draw();
 
-        circle.addEventListener("click", function(event) {
-
+	circle.onClick = function(event) {
+//console.log('circle.onClick at ' + event.point.x + ',' + event.point.y);
 		switch (mode) {
 			case "glue":
-				glue(event.stageX, event.stageY);
+				glue(event.point.x, event.point.y);
+			        drawAllIntersections();
+
 				break;
 			case "cut":
-				cutNode(event.currentTarget.name, 5, 5);
+				cutNode(this.name,5);
+                                drawAllIntersections();
+
 				break;
 			case "erase":
-                                erasePoint(event.currentTarget.name);
-                                break;
+				erasePoint(this.name);
+                                drawAllIntersections();
 
+				break;
 		}
-		dragPoint(event);
-	})
-
-	stage.addChild(circle);
-	stage.update();
+	}
 
 	cy.add({
     		group: "nodes",
@@ -342,138 +394,155 @@ function createPoint(x,y) {
 
 	nodeId++;
 
-	circle.on("pressmove", function(evt){
+	circle.onMouseDrag = function (evt) {
 		switch (mode) {
 			case "drag":
-                		removeIntersections();
-                		dragPoint(evt);
-                		pointIntersection(evt);
+                		removeTempIntersections();
+		                dragPoint(group.children[this.name],evt.point.x, evt.point.y);
+                		pointIntersection(evt,this.name);
 				break;
 			case "draw":
-        			updatePoint(drawingPoint,evt.stageX,evt.stageY);
+
+                                removeTempIntersections();
+                                updatePoint(drawingPoint,evt.point.x, evt.point.y);
+                                pointIntersection(evt,this.name);
 				break;
 		}
+	}  
+	
+	circle.onMouseDown = function (evt) {
 
-	});
-
-//var myVar;
-        circle.on("mousedown", function(evt) {
-
-                removeIntersections();
-//myVar = setInterval(myTimer, 100);
-//thisEvent = evt;
-
+		transferPermtoTemp(this.name);
+		var thisX, thisY;
 		if (mode == "draw") {
-			createLine(evt.currentTarget.x1,evt.currentTarget.y1,evt.currentTarget.x1 + 6, evt.currentTarget.y1);
-			glue(evt.currentTarget.x1 - 6,evt.currentTarget.y1);
+			thisX = group.children[this.name].segments[0].point.x;
+			thisY = group.children[this.name].segments[0].point.y;
+			createLine(thisX, thisY, thisX + 20, thisY + 20);
+			dragThisLine = 'l' + (edgeId - 1);
+			glue(thisX,thisY);
 
-			drawingPoint = stage.getChildByName('n' + (nodeId - 1));
-			evt.currentTarget.x1 = evt.currentTarget.x1 + 12;
-			evt.currentTarget.y1 = evt.currentTarget.y1 + 12;
+			initialPoint = new Point(thisX, thisY);
+			dragPoint(group.children['n' + (nodeId - 1)], thisX, thisY);
+			drawingPoint = group.children['n' + (nodeId - 1)];
 		}
+	}
 
-        });
-//function myTimer() {
-//                removeIntersections();
-//                dragPoint(thisEvent);
-//                pointIntersection(thisEvent);
-//}
+	circle.onMouseUp = function (evt) {
+//console.log('circle.onMouseUp');
 
-        circle.on("pressup", function(evt){
-
+                transferTempToPerm();
 		if (mode == "draw") {
-                	glue(evt.stageX, evt.stageY);
-			updatePoint(drawingPoint, evt.stageX, evt.stageY);
-                	pointIntersection(evt);
+//console.log('drawingPoint ' + drawingPoint.segments[0].point.x + ',' + drawingPoint.segments[0].point.y);
+//console.log('initialPoint ' + initialPoint.x + ',' + initialPoint.y);
+			drawingFirstLine = false;
+
+                        //if drawingPoint and initialPoint are too close together
+			if (distance(drawingPoint.segments[0].point.x,drawingPoint.segments[0].point.y,initialPoint.x,initialPoint.y) < 20) {
+				erase(dragThisLine);
+
+				createPoint(evt.point.x, evt.point.y);
+				glue(evt.point.x, evt.point.y);
+
+				groupId++;
+			} else {
+
+				var thisPoint = new Point(evt.point.x, evt.point.y);
+				var nodesClicked = completeHitTest(thisPoint, true, false);
+				var edgesClicked = completeHitTest(thisPoint, false, true);
+				if (edgesClicked.length > 1) {
+		 			cutEdge(edgesClicked[1], evt.point.x, evt.point.y, 0);          
+				}
+				glue(evt.point.x, evt.point.y);
+
+				updatePoint(drawingPoint, evt.point.x, evt.point.y);
+				toggleLine(dragThisLine);
+				drawAllIntersections();
+			}
 		}
 		if (mode == "drag") {
-
 		}
-//clearInterval(myVar);
-        });
+	}
 
 }
 
 
+function distance(x1,y1,x2,y2) {
+	var a = x1 - x2;
+	var b = y1 - y2;
+	var c = Math.sqrt( a*a + b*b );
+	return c;
+}
 
 function createHelper(x,y) {
 
-        var helper = new createjs.Shape();
-        helper.graphics.setStrokeStyle(3).beginStroke("#528494").beginFill('#cedee4').drawRect(x - 6, y - 6, 12, 12);
-        helper.type = 'point';
-        helper.nodeId = 'n' + nodeId;
+        var helper = new Path();
+        helper.add(new Point(x - 7, y - 7), new Point(x + 7, y - 7), new Point(x + 7, y + 7), new Point(x - 7 , y + 7));
+        helper.fillColor = "#cedee4";
+       helper.strokeWidth = 3;
+       helper.strokeColor = "#528494";
+       helper.name = 'h' + edgeId;
         helper.groupId = 'g' + groupId;
-        helper.name = 'h' + edgeId;
-	helper.x1 = x;
-	helper.y1 = y;
+	helper.closed = true;
+        group.addChild(helper);
 
         addToGroupIdList(helper.groupId, helper.name);
 
-        helper.addEventListener("click", function(event) {
-//		console.log(event.currentTarget.name + ' was clicked '  + event.currentTarget.groupId); 
-	});
-        stage.addChild(helper);
-        stage.update();
-        helperId++;
+        helper.onClick = function(event) {
+	}
 
-	helper.on("pressmove", function(evt){
-		//dragHelper(evt);
+        helper.onMouseDrag = function (evt) {
+                removeTempIntersections();
+		dragHelper(group.children[this.name],evt.point.x, evt.point.y);
+                helperIntersection(evt, this.name);
+	}
+        helper.onMouseDown = function (evt) {
+                transferPermtoTemp(this.name);
+        }
 
-
-                removeIntersections();
-                dragHelper(evt);
-                helperIntersection(evt);
-
-
-	});
-
+        helper.onMouseUp = function (evt) {
+                transferTempToPerm();
+	}
 }
 
 function createLine(x1, y1, x2, y2) {
-	var line = new createjs.Shape();
+//console.log('createLine ' + x1 + ','  + y1 + ',' + x2 + ',' + y2);
+	var line = new Path();
+	line.strokeWidth = 15;
+	line.strokeColor = '#91b6c2';
+	line.add(new Point(x1, y1), new Point(x2, y2));
+	line.closed = false;
+        line.name = 'l' + edgeId;
+        line.groupId = 'g' + groupId;
+        group.addChild(line);
 
-	line.graphics.setStrokeStyle(12).beginStroke('#91b6c2');
-	line.graphics.moveTo(x1,y1);
-	line.graphics.lineTo(x2,y2);
-	line.graphics.endStroke();
-	line.groupId = 'g' + groupId;
-	line.name = 'l' + edgeId;
-	line.x1 = x1;
-	line.y1 = y1;
-	line.x2 = x2;
-	line.y2 = y2;
-
-        line.addEventListener("click", function(event) {
-
+        line.onClick = function(event) {
+//console.log('line.onClick');
                 switch (mode) {
                         case "toggle":
-                        	toggleLine(event.currentTarget.name);
+				toggleLine(this.name);
+                                drawAllIntersections();
+
                                 break;
                         case "erase":
- 	                        erase(event.currentTarget.name);
-                                break;
+				erase(this.name);
+                                drawAllIntersections();
+
+			      break;
+
                         case "cut":
-				cutEdge(event.currentTarget.name, event.stageX, event.stageY, 5, 5);
-                                break;
-			case "draw":
-console.log('draw a point on this line');
-                                cutEdge(event.currentTarget.name, event.stageX, event.stageY, 0, 0);
-console.log('before glue');
-for (key in groupIdList) {
-  console.log('groupIdList[' + key + '] ' + groupIdList[key]);
-}
-				glue(event.stageX, event.stageY);
+				cutEdge(this.name, event.point.x, event.point.y, 5);
+                                drawAllIntersections();
+
 				break;
-
+			case "draw":
+//				cutEdge(this.name, event.point.x, event.point.y,0);
+//				glue(event.point.x, event.point.y);
+				break;
                 }
-
-	});
+	}
 
         addToGroupIdList(line.groupId, line.name);
  
-	stage.addChild(line);
-	stage.update();
-
 	createPoint(x1,y1);
 	createPoint(x2,y2);
 	cy.add({
@@ -481,24 +550,55 @@ for (key in groupIdList) {
     		data: { id: 'l' + edgeId, source: 'n' + (nodeId - 2) , target: 'n' + (nodeId - 1)  }
 	});
 
-        line.addEventListener("mousedown", function(event) { 
-		startX = event.stageX;
-		startY = event.stageY;
-	})
+ 
+        line.onMouseDown = function (evt) {
+//console.log('line.onMouseDown');
+		if (mode == "draw") {
+			cutEdge(this.name, evt.point.x, evt.point.y, 0);
+			glue(evt.point.x, evt.point.y);
+			thisX = evt.point.x;
+			thisY = evt.point.y
+                        createLine(thisX, thisY, thisX + 20, thisY + 20);
+                        dragThisLine = 'l' + (edgeId - 1);
+                        glue(thisX,thisY);
 
-	line.on("pressmove", function(evt){
-                removeIntersections();
+                        initialPoint = new Point(thisX, thisY);
+                        dragPoint(group.children['n' + (nodeId - 1)], thisX, thisY);
+                        drawingPoint = group.children['n' + (nodeId - 1)];
+	                transferPermtoTemp(dragThisLine);
+		} else {
+	                transferPermtoTemp(this.name);
+			startX = evt.point.x;
+			startY = evt.point.y;
+		}
 
-		dragLine(evt);
-                edgeIntersection(evt);
+	}
 
-	});
+        line.onMouseUp = function (evt) {
+//console.log('line.onMouseUp');
+                if (mode == "draw") {
+                   //     glue(evt.point.x, evt.point.y);
+                   //     updatePoint(drawingPoint, evt.point.x, evt.point.y);
+                   //     toggleLine(dragThisLine);
+                } 
+	        transferTempToPerm();
+        }
 
-        line.on("mousedown", function(evt) {
-                removeIntersections();
 
-        });
+        line.onMouseDrag = function (evt) {
+//console.log('line.onMouseDrag');
+		if (mode == "draw") {
+                        removeTempIntersections();
+                        updatePoint(drawingPoint,evt.point.x, evt.point.y);
 
+			    pointIntersection(evt,drawingPoint.name);
+		} else {
+	                removeTempIntersections();
+ 	                dragLine(group.children[this.name],evt.point.x,evt.point.y);
+
+  	                edgeIntersection(evt, this.name);
+		}
+	}
 
         edgeId++;
         groupId++;

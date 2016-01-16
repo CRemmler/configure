@@ -50,13 +50,29 @@ background-color: white;
                 font-weight: normal;
 
 	  }
-
-          .palette-case {
+	  #palette-case-0 {
+		display: none;
+		float: left;
+		width: 70px;
+		//padding-top: 5px;
+  	  }
+          #palette-case-1 {
                 margin:auto;
                 text-align:center;
                 width: 522px; //width:328px;
           }
+          #palette-case-2 {
+                display: none;
+                margin:auto;
+                text-align:center;
+                width: 260px; //width:328px;
+          }
 
+          .palette-box-0 {
+                float:left;
+		margin-top: -6px;
+                padding:0px 4px 0px 4px;
+          }
 
           .palette-box {
                 float:left;
@@ -68,7 +84,7 @@ background-color: white;
           }
 	  .palette-item {
 		  border-radius: 5px;
-padding: 3px 1px 0px 1px;
+		padding: 3px 1px 0px 1px;
 	  }
 
 
@@ -79,34 +95,6 @@ padding: 3px 1px 0px 1px;
                 text-shadow: 0px 0px black;
           }
 
-
-          #scale{
-                background-color: #d4aad4;
-                border:2px solid #fff;
-          }
-          #rotate-one{
-                background-color: #b4aad4;
-                border:2px solid #fff;
-          }
-          #rotate-two{
-                background-color: #b4aad4;
-                border:2px solid #fff;
-          }
-
-
-        #show-two-d {
-		display: none;
-        }
-        #show-two-r {
-                display: none;
-        }
-        #show-two-e {
-                display: none;
-        }
-
-
-
-
 	  .img-big {
 		width:200px;
 		height:50px;
@@ -116,67 +104,62 @@ padding: 3px 1px 0px 1px;
 		height: 50px;
 	  }
 
-          #drag-one {
+          #drag-zero, #drag-one, #drag-two {
                 background-color: #d4aaaa; //#994c00; //#999900;
-                border:2px solid #777;
+                border:2px solid black; //#777;
           }
-          #drag-two {
-                background-color: #d4aaaa; //#994c00; //#999900;
-                border:2px solid #777;
-	//	width:190px;
-          }
-
-          #draw{
+          #draw-zero, #draw-one, #draw-two {
                 background-color: #d4bfaa;
                 border:2px solid #fff;
           }
-          #toggle{
+
+	  #toggle-zero, #toggle-one, #toggle-two {
                 border:2px solid #fff;
 		background-color:  #d4d4aa;
           }
-          #glue{
+          #glue-zero, #glue-one, #glue-two {
                 border:2px solid #fff;
                 background-color: #aad4aa;
           }
-          #cut{
+          #cut-zero, #cut-one, #cut-two {
                 border:2px solid #fff;
                 background-color: #aad4c9;
           }
-          #erase-one{
+          #erase-zero, #erase-one, #erase-two {
                 border:2px solid #fff;
                 background-color: #aac9d4;
           }
-          #erase-two{
+          #scale-zero, #scale-one, #scale-two {
+                background-color: #d4aad4;
                 border:2px solid #fff;
-                background-color: #aac9d4;
+          }
+          #rotate-zero, #rotate-one, #rotate-two {
+                background-color: #b4aad4;
+                border:2px solid #fff;
           }
 
+@media only screen and (min-height: 605px) {
+        #palette-case-0 {
+                display: block;
+        }
+        #palette-case-1 {
+                display: none;
+        }
+        #palette-case-2 {
+                display: none;
+        } 
+}
 
 @media only screen and (max-width: 545px) {
-
-        #show-one-d {
+        #palette-case-0 {
                 display: none;
         }
-        #show-two-d {
-                display: inline;
-        }
-        #show-one-r { 
-                display: none;
-        }
-        #show-two-r {
-                display: inline;
-        }
-        #show-one-e {
-                display: none;
-        }       
-        #show-two-e {
-                display: inline;
-        }
-
-          
-          .palette-case {
-               width: 260px; // width: 328px;
-          }
+	#palette-case-1 {
+		display: none;
+	}
+	#palette-case-2 {
+		display: block;
+	}
 
 }
 

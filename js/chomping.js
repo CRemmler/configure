@@ -5,16 +5,22 @@
 
 
 function erasePoint(nodeName) {
-                removeFromGroupIdList(nodeName, stage.getChildByName(nodeName).groupId);
-                delete groupIdList[stage.getChildByName(nodeName).groupId];
-                stage.removeChild(stage.getChildByName(nodeName));
-                stage.update();
+console.log(nodeName);
+        var neighbors = cy.$("#" + nodeName).neighborhood();
+//console.log('neighbors' + neighbors.length);
+	if (neighbors.length == 0) {
+
+
+		removeFromGroupIdList(nodeName, group.children[nodeName].groupId);
+		delete groupIdList[group.children[nodeName].groupId];
+		group.children[nodeName].remove();
+	}
 
 }
 
 function erase(edgeName) {
+//console.log('erase ' + edgeName);
 
-//	var edgeName = event.currentTarget.name;
 	var source = cy.$("#" + edgeName).source();
 	var target = cy.$("#" + edgeName).target();
 	var sourceNeighbors = cy.$("#" + source.id()).neighborhood();
@@ -23,24 +29,20 @@ function erase(edgeName) {
 
 	//if line or curve is alone
 	if ((sourceNeighbors.length == 2) && (targetNeighbors.length == 2)) {
-
-		removeFromGroupIdList(source.id(), stage.getChildByName(source.id()).groupId);
-                removeFromGroupIdList(target.id(), stage.getChildByName(target.id()).groupId);
-		removeFromGroupIdList(edgeName, stage.getChildByName(edgeName).groupId);
-		removeFromGroupIdList(helperName, stage.getChildByName(edgeName).groupId);
-		delete groupIdList[stage.getChildByName(edgeName).groupId];
-
+		removeFromGroupIdList(source.id(), group.children[source.id()].groupId);
+                removeFromGroupIdList(target.id(), group.children[target.id()].groupId);
+		removeFromGroupIdList(edgeName, group.children[edgeName].groupId);
+		removeFromGroupIdList(helperName, group.children[edgeName].groupId);
+		delete groupIdList[group.children[edgeName].groupId];
 		cy.remove(cy.$("#" + source.id()));
                 cy.remove(cy.$("#" + target.id()));
                 cy.remove(cy.$("#" + edgeName));
-
-		if (stage.getChildByName(helperName) != undefined) { 
-			stage.removeChild(stage.getChildByName(helperName));
+		if (group.children[helperName] != undefined) {
+			group.children[helperName].remove();
 		}
-		stage.removeChild(stage.getChildByName(edgeName));
-                stage.removeChild(stage.getChildByName(source.id()));
-                stage.removeChild(stage.getChildByName(target.id()));
-		stage.update();
+		group.children[edgeName].remove();
+		group.children[source.id()].remove();
+		group.children[target.id()].remove();
 	}
 
 	//if line/curve has one alone node
@@ -52,31 +54,27 @@ function erase(edgeName) {
 		} else {
 			removableNeighbor = target;
 		}
-                removeFromGroupIdList(removableNeighbor.id(), stage.getChildByName(removableNeighbor.id()).groupId);
-                removeFromGroupIdList(edgeName, stage.getChildByName(edgeName).groupId);
-                removeFromGroupIdList(helperName, stage.getChildByName(edgeName).groupId);
-
+                removeFromGroupIdList(removableNeighbor.id(), group.children[removableNeighbor.id()].groupId);
+                removeFromGroupIdList(edgeName, group.children[edgeName].groupId);
+                removeFromGroupIdList(helperName, group.children[edgeName].groupId);
                 cy.remove(cy.$("#" + removableNeighbor.id()));
                 cy.remove(cy.$("#" + edgeName));
-
-                if (stage.getChildByName(helperName) != undefined) {
-                        stage.removeChild(stage.getChildByName(helperName));
+		if (group.children[helperName] != undefined ) {
+			group.children[helperName].remove(); 
                 }
-                stage.removeChild(stage.getChildByName(edgeName));
-                stage.removeChild(stage.getChildByName(removableNeighbor.id()));
-                stage.update();
+		group.children[edgeName].remove();
+		group.children[removableNeighbor.id()].remove();
 	} 
 
 	//if line or curve is connected to lines or curves on both ends
 	if ((sourceNeighbors.length > 2) && (targetNeighbors.length > 2)) {
-		removeFromGroupIdList(edgeName, stage.getChildByName(edgeName).groupId);
-                removeFromGroupIdList(helperName, stage.getChildByName(edgeName).groupId);
+		removeFromGroupIdList(edgeName, group.children[edgeName].groupId);
+		removeFromGroupIdList(helperName, group.children[edgeName].groupId);
 		cy.remove(cy.$("#" + edgeName));
-		stage.removeChild(stage.getChildByName(edgeName));
-                if (stage.getChildByName(helperName) != undefined) {
-                        stage.removeChild(stage.getChildByName(helperName));
+		group.children[edgeName].remove();
+                if (group.children[helperName] != undefined) {
+			group.children[helperName].remove();
                 }
-		stage.update();
 		var sameObject = false;
 		cy.$("#" + source.id()).components().forEach(function( ele ){
 			if (ele.id() == target.id()) { sameObject = true; }
@@ -84,23 +82,84 @@ function erase(edgeName) {
 		if (sameObject == false) {
 			groupId++;
 			cy.$("#" + source.id()).components().forEach(function( ele ){
-				removeFromGroupIdList(ele.id(), stage.getChildByName(ele.id()).groupId);
-				addToGroupIdList(groupId, ele.id());				
+				removeFromGroupIdList(ele.id(), group.children[ele.id()].groupId);
+//console.log('remove ' + ele.id() + ' from ' + group.children[ele.id()].groupId);
+				addToGroupIdList('g' + groupId, ele.id());				
+//console.log('add ' + ele.id() + ' to ' + groupId);
 			});
 		}
 	}
+
 }
 
 function glue(x,y) {
-			var shapesHere = stage.getObjectsUnderPoint(x,y);
+console.log('glue');
+        var nodesHere = [];
+        var thisPoint = new Point(x,y);
+	var edgesInGroup = [];
+	var thisX, thisY;
+	var glueToItself = false;
+
+	var firstClickedNode = null; 
+       for (key in group.children) {
+//console.log('key ' + key);
+		if ((key[0] == "n") && (firstClickedNode == null)) {
+			if (group.children[key].contains(thisPoint)) {
+				firstClickedNode = key;
+				nodesHere.push(group.children[key]);
+			}
+		}
+                if ((key[0] == "c") || (key[0] == "l")) {
+                                edgesInGroup.push(group.children[key]);
+                }
+	}
+
+
+	if (firstClickedNode != null) {
+		for (key in group.children) {
+			if ((key[0] == "n") && (key != firstClickedNode)) {
+				if (group.children[key].bounds.intersects(group.children[firstClickedNode].bounds)) {
+					nodesHere.push(group.children[key]);
+				}
+	
+			}
+		}
+	}
+
+//console.log('nodesHere ' + nodesHere);
+//console.log('edgesInGroup ' + edgesInGroup);
+
+	
+	var source, target, sourceHere, targetHere, gluedEdge;
+	//for each edge in group, see if source and target are in nodesHere
+	for (key in edgesInGroup) {
+		sourceHere = false;
+		targetHere = false;
+		source = cy.$('#' + edgesInGroup[key].name).source();
+		target = cy.$('#' + edgesInGroup[key].name).target();
+		for (key2 in nodesHere) {
+			if (source.id() == nodesHere[key2].name) {
+				sourceHere = true;
+			}
+			if (target.id() == nodesHere[key2].name) {
+				targetHere = true;
+			}
+		}
+		if ((sourceHere) && (targetHere)) {
+			glueToItself = true;
+			gluedEdge = edgesInGroup[key];
+		}
+	}
+
+	if (glueToItself == true) {
+		//spread pieces apart
+		thisX = group.children[firstClickedNode].segments[0].point.x;
+		thisY = group.children[firstClickedNode].segments[0].point.y; 
+                dragPoint(group.children[firstClickedNode], thisX + 20, thisY + 20);
+	}
+
+	if (glueToItself == false) {
                        var tempSource, tempTarget, tempId, tempId2;
-                        //var shapesHere = stage.getObjectsUnderPoint(event.stageX, event.stageY);
-                        var nodesHere = [];
-                        for (p=0;p<shapesHere.length;p++) {
-                                if (shapesHere[p].name[0]== "n") {
-                                        nodesHere.push(shapesHere[p]);
-                                }
-                        }
                         if (nodesHere.length > 1) {
                                 var firstNode = nodesHere[0];
                                 for (q=1;q<nodesHere.length;q++) {
@@ -128,16 +187,30 @@ function glue(x,y) {
                                                 for (v=0;v<maxLength;v++) {
                                                         if (groupIdList[nodesHere[q].groupId][v] != nodesHere[q].name) {
                                                                 groupIdList[firstNode.groupId].push(groupIdList[nodesHere[q].groupId][v]);
-                                                                stage.getChildByName(groupIdList[nodesHere[q].groupId][v]).groupId = firstNode.groupId;
+      								group.children[groupIdList[nodesHere[q].groupId][v]].groupId = firstNode.groupId;
                                                         }
                                                 }
                                                 delete groupIdList[thisGroup];
                                         }
                                         var i = groupIdList[firstNode.groupId].indexOf(nodesHere[q].name);
                                         if(i != -1) { groupIdList[firstNode.groupId].splice(i, 1);}
-                                        stage.removeChild(nodesHere[q]);
+                               		group.children[nodesHere[q].name].remove();
                                 }
+				for (key in group.children) {
+					if ((key[0] == 'c') || (key[0] == 'l')) {
+						group.children[firstNode.name].insertAbove(group.children[key]);
+					}
+				}
+                dragPoint(group.children[firstNode.name],x + 1,y + 1);
+
                         }
+	}	
+
+
+        if (firstClickedNode != null) {
+		group.children[firstClickedNode].bringToFront();
+	}
+
 }
 
 

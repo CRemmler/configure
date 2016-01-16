@@ -14,7 +14,6 @@ function lineIntersectsLine(l1, l2) {
     }
     denominator = ((l2.p2.y - l2.p1.y) * (l1.p2.x - l1.p1.x)) - ((l2.p2.x - l2.p1.x) * (l1.p2.y - l1.p1.y));
     if (denominator == 0) {
-
         return result;
     }		
     a = l1.p1.y - l2.p1.y;

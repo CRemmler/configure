@@ -1,19 +1,20 @@
 <!doctype html>
 <html>
 <head>
-	<title>Configure 3.7</title>
+	<title>Configure 3.11</title>
     	<!-- https://github.com/krisrak/html5-canvas-drawing-app/ -->
     	<!-- sketchpad interface for desktop/mobile -->
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0" />
 	<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
         <link rel="stylesheet" href="css/krisrak.css" />
+	<script src="js/paper-full.min.js"></script>
 	<script src="js/jquery.min-2.1.4.js"></script>
 	<script src="js/jquery.mobile-1.4.5.min.js"></script>
         <script src="js/fabric.min.js"></script>
         <script src="js/cytoscape.min.js"></script>
+        <script src="js/loader.js"></script>
 	<script src="js/draw.js"></script>
     	<script src="js/interaction.js"></script>
-    	<script src="js/loader.js"></script>
         <script src="js/buttons.js"></script>
     	<script src="js/bezier.js"></script>
         <script src="js/graph.js"></script>
@@ -30,36 +31,64 @@
 	
 	var ctx;
 	var canvas; 	// container for canvas
+	var canvasOffset;
 	var stage;	// stage for easeljs canvas
 	var cy; 		// container for cytoscape
 	var nodeId, groupId, edgeId, helperId; // id's for creating objects in fabric and cytoscape
 	var groupIdList = new Object(); // store which n,c,l,h are in which group
 	var mode = "drag"; //draw, drag, toggle, glue, erase
 	var intersectionList = [];
-	var drawingPoint;
+	var drawingPoint, initialPoint;
+	var drawingFirstLine;
+	var group;
+	var tempIntersectionGroupFill;	
+	var permIntersectionGroupFill;
+	var tempIntersectionGroup;  // intersection points
+	var permIntersectionGroup;
+	var offset;
+	var lineBeingDrawn;
+	var globalResizeTimer = null;
+	var oldMenu = null;
+	var newMenu = null;
 
 	$(document).ready(function () {
 
 	        $("#aboutButtonContent").hide();
  	        $("#newButtonContent").hide();
 
+		paper.install(window);
+
 		// setup a new canvas for drawing wait for device init
     		setTimeout(function(){
 	   		newCanvas(); 	//loader.js
 			newGraph(); 	//loader.js
 
-
      		        setupButtons(); 
-
 			drawInitial();	
     		}, 1000);
 
+		$(window).resize(function() {
+  // 			if(globalResizeTimer != null) window.clearTimeout(globalResizeTimer);
+  //  			globalResizeTimer = window.setTimeout(function() {
+
+				var display0 = $("#palette-case-0").css('display');
+                                var display1 = $("#palette-case-1").css('display');
+                                var display2 = $("#palette-case-2").css('display');
+				if (display0 == "block") { newMenu = 0; }
+				if (display1 == "block") { newMenu = 1; }
+				if (display2 == "block") { newMenu = 2; }
+				if (oldMenu != newMenu) {
+                              		oldMenu = newMenu;
+        	               		 newCanvas();
+				 	console.log('newCanvas');
+				}
+//    			}, 200);
+		});
 
 		function drawInitial() {
 			var shapeState = "#" + $("#shape").val();
 			$(shapeState).trigger("click");
 		}
-
 
 });
 
@@ -70,9 +99,9 @@
 </head>
 <body>
 	<div data-role="page" id="page1">
-		<div data-theme="a" style="height: 46px; border-bottom: 1px solid white;" data-role="header">
+		<div data-theme="a" style="height: 46px;" data-role="header">
 
-        		<h3>Configure 3.7</h3><p>
+        		<h3>Configure 3.11</h3><p>
 			<div  id='aboutButtonContent'>
                                 <div style="text-align:right">
                                         <button id='closeAbout'>x</button>
@@ -95,6 +124,8 @@
 			<a class="ui-btn-left" style="background-color:#ddd; padding: 0px;">
  				<select id="shape" data-theme="b">
 	  				<option id = "default" value="default">New</option>
+                                        <option id = "arc" value="arc">Arc</option>
+                                        <option id = "segment" value="segment">Segment</option>
   					<option id = "heart" value="heart">Heart</option>
                                         <option id = "print" value="print">Print</option>
 
@@ -103,49 +134,96 @@
 
                 	<a id="about" data-role="button" data-theme="b" class="ui-btn-right">About</a>
     		</div>
+		<div id = 'palette-case-0' data-theme="a" data-role="header" >
+                                <div class="palette-box-0">
+                                        <button id='drag-zero' class='palette-item'><img class='img-small' src='images/drag0.png'></button>
+                                </div>
+                                <div class="palette-box-0">
+                                        <button id="draw-zero" class='palette-item'><img class='img-small' src='images/draw0.png'></button>
+                                </div>
+                                <div class="palette-box-0">
+                                        <button id="toggle-zero" class='palette-item'><img class='img-small' src='images/toggle0.png'></button>
+                                </div>
+                                <div class="palette-box-0">
+                                        <button id="glue-zero" class='palette-item'><img class='img-small' src='images/glue0.png'></button>
+                                </div>
+                                <div class="palette-box-0">
+                                        <button id="cut-zero" class='palette-item'><img class='img-small' src='images/cut0.png'></button>
+                                </div>
+                                <div class="palette-box-0">
+                                        <button id="erase-zero" class='palette-item'><img class='img-small' src='images/erase6.png'></button>
+                                </div>
+                                <div class="palette-box-0">
+                                        <button id="rotate-zero" class='palette-item'><img class='img-small' src='images/rotate0.png'></button>
+                                </div>
+                                <div class="palette-box-0">
+                                        <button id="scale-zero" class='palette-item'><img class='img-small' src='images/scale0.png'></button>
+                                </div>
+
+   		</div> 
+
 
     		<div id="content"><p style="text-align:center">Loading Canvas...</p></div>
 
+
     		<div data-theme="a" data-role="footer" data-position="fixed">
-			<div class="palette-case">
-                                <div class="palette-box" id='show-one-d'>
-                                        <button id='drag-one' class='palette-item'>
-                                                <img class='img-small' src='images/drag0.png'>
-                                        </button>
-                                </div>
-	
-                        	<div class="palette-box">
-                               		<button id="draw" class='palette-item'><img class='img-small' src='images/draw0.png'></button>
-                        	</div>
-                                <div class="palette-box">
-                                        <button id="toggle" class='palette-item'><img class='img-small' src='images/toggle0.png'></button>
+
+			<div id='palette-case-1'>
+                                <div class="palette-box">                                
+					<button id='drag-one' class='palette-item'><img class='img-small' src='images/drag0.png'></button>
                                 </div>
                                 <div class="palette-box">
-                                        <button id="glue" class='palette-item'><img class='img-small' src='images/glue0.png'></button>
+                                        <button id="draw-one" class='palette-item'><img class='img-small' src='images/draw0.png'></button>
                                 </div>
                                 <div class="palette-box">
-                                        <button id="cut" class='palette-item'><img class='img-small' src='images/cut0.png'></button>
+                                        <button id="toggle-one" class='palette-item'><img class='img-small' src='images/toggle0.png'></button>
                                 </div>
-                                <div class="palette-box" id='show-one-e'>
-                                        <button id="erase-one" class='palette-item'><img class='img-small' src='images/erase0.png'></button>
+                                <div class="palette-box">
+                                        <button id="glue-one" class='palette-item'><img class='img-small' src='images/glue0.png'></button>
                                 </div>
-				<div class="palette-box" id='show-two-d'>
-                                        <button id='drag-two' class='palette-item'>
-                                                <img class='img-small' src='images/drag0.png'>
-  					</button>
-				</div> 
-                                <div class="palette-box" id='show-one-r'>
+                                <div class="palette-box">
+                                        <button id="cut-one" class='palette-item'><img class='img-small' src='images/cut0.png'></button>
+                                </div>
+                                <div class="palette-box">
+                                        <button id="erase-one" class='palette-item'><img class='img-small' src='images/erase6.png'></button>
+                                </div>
+                                <div class="palette-box">
                                         <button id="rotate-one" class='palette-item'><img class='img-small' src='images/rotate0.png'></button>
                                 </div>
                                 <div class="palette-box">
-                                        <button id="scale" class='palette-item'><img class='img-small' src='images/scale0.png'></button>
+                                        <button id="scale-one" class='palette-item'><img class='img-small' src='images/scale0.png'></button>
                                 </div>
-                                <div class="palette-box" id='show-two-r'>
-                                        <button id="rotate-two" class='palette-item'><img class='img-small' src='images/rotate0.png'></button>
+                                <div style="clear:both"></div>
+
+			</div>
+			<div  id='palette-case-2'>
+
+                                <div class="palette-box">
+                                        <button id='drag-two' class='palette-item'><img class='img-small' src='images/drag0.png'></button>
+                                </div>
+                        	<div class="palette-box">
+                               		<button id="draw-two" class='palette-item'><img class='img-small' src='images/draw0.png'></button>
+                        	</div>
+                                <div class="palette-box">
+                                        <button id="toggle-two" class='palette-item'><img class='img-small' src='images/toggle0.png'></button>
+                                </div>
+                                <div class="palette-box">
+                                        <button id="glue-two" class='palette-item'><img class='img-small' src='images/glue0.png'></button>
                                 </div>
 
-                                <div class="palette-box" id='show-two-e'>
+                                <div class="palette-box">
+                                        <button id="scale-two" class='palette-item'><img class='img-small' src='images/scale0.png'></button>
+                                </div>
+
+                                <div class="palette-box">
+                                        <button id="rotate-two" class='palette-item'><img class='img-small' src='images/rotate0.png'></button>
+                                </div>
+                               <div class="palette-box">
                                         <button id="erase-two" class='palette-item'><img class='img-small' src='images/erase0.png'></button>
+                                </div>
+
+                                <div class="palette-box">
+                                        <button id="cut-two" class='palette-item'><img class='img-small' src='images/cut0.png'></button>
                                 </div>
 
 				<div style="clear:both"></div>
